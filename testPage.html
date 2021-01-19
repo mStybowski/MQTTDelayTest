@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"
+            type="text/javascript"></script>
+</head>
+<style>
+    *{
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+    }
+    input{
+        padding: 5px 15px;
+        width: 280px;
+        height: 40px;
+    }
+    button{
+        background-color: #98ea29;
+        border: 2px solid green;
+        border-radius: 10px;
+        width: 280px;
+        height: 44px;
+        font-weight: bold;
+        font-size: 15px;
+        color: #484747;
+        margin: 10px 0;
+        cursor: pointer;
+        outline:none;
+    }
+    #wrapper{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    #startSending{
+        background-color: #f18787;
+        border: 2px solid darkred;
+    }
+
+</style>
+<body>
+
+<div id="wrapper">
+    <button id="sendOne" onclick="sendMessage()">Send one message</button>
+    <input type="text" id="periodInput" placeholder="period in ms">
+    <button id="startSending" onclick="startSendingMessages()">Start sending messagesT</button>
+</div>
+
+
+<script>
+
+    let timer = null;
+    let messageCounter = 0;
+
+    client = new Paho.MQTT.Client("localhost", 8083, "BrowserClient");
+
+    client.onMessageArrived = onMessageArrived;
+
+    // connect the client
+    client.connect({ onSuccess: onConnect });
+
+    function onConnect() {
+        console.log("Connected");
+        client.subscribe("fromServer");
+
+    }
+
+    // called when a message arrives
+    function onMessageArrived(message) {
+        let currentTime = Date.now();
+        let difference = currentTime - Number(message.payloadString);
+        console.log(difference);
+    }
+
+    function sendMessage() {
+        let timeStamp = Date.now();
+
+        let message = new Paho.MQTT.Message(timeStamp.toString());
+        message.destinationName = "fromBrowser";
+        client.send(message);
+        // console.log("Wiadomosc wyslana")
+    }
+
+    function startSendingMessages() {
+        let period = Number(document.getElementById("periodInput").value);
+        timer = setInterval(sendMessage, period);
+    }
+
+
+
+</script>
+</body>
+</html>
