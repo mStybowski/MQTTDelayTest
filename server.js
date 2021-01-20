@@ -11,27 +11,21 @@ client.on('connect', function () {
 })
 
 function generateCSV(message){
-    console.log("YEA!!")
     let myArrayOfStrings = message.split(',');
-    console.log(myArrayOfStrings);
-
     let arrayOfValues = myArrayOfStrings.map(function(x) {
         return {value:parseInt(x)}
     });
 
-    console.log(arrayOfValues);
-
     const csvWriter = createCsvWriter({
-        path: 'out.csv',
+        path: 'MQTT_Results.csv',
         header: [
-            {id: 'value', title: 'Value'}
+            {id: 'value', title: 'Time [ms]'}
         ]
     });
 
-
     csvWriter
         .writeRecords(arrayOfValues)
-        .then(()=> console.log('The CSV file was written successfully'));
+        .then(()=> console.log('The CSV file was created successfully'));
 }
 
 client.on('message', function (topic, message) {
