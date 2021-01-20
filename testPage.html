@@ -54,6 +54,7 @@
 
 <script>
 
+    let delays = [];
     let timer = null;
     let messageCounter = 0;
 
@@ -72,9 +73,17 @@
 
     // called when a message arrives
     function onMessageArrived(message) {
+        messageCounter++;
         let currentTime = Date.now();
         let difference = currentTime - Number(message.payloadString);
         console.log(difference);
+        delays.push(difference)
+
+        if(delays.length === 100){
+            let message2 = new Paho.MQTT.Message(delays.join());
+            message2.destinationName = "results";
+            client.send(message2);
+        }
     }
 
     function sendMessage() {
